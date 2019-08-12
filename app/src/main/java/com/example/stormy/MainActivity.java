@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fireRequest() {
-        String apiKey = "000";
+        String apiKey = BuildConfig.DarkSkyApiKey;
         double latitude = 40.795335;
         double longitude = -73.972640;
         String forecastURL = "https://api.darksky.net/forecast/"
