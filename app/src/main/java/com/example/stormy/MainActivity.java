@@ -1,8 +1,5 @@
 package com.example.stormy;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -11,8 +8,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.BindingAdapter;
+import androidx.databinding.DataBindingUtil;
+
+import com.example.stormy.databinding.ActivityMainBinding;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -30,27 +35,28 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
-    private CurrentWeather currentWeather;
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        enableAttributionLink();
-
-        if (isNetworkAvailable()) {
-            fireRequest();
-        } else {
-            Toast.makeText(this, getString(R.string.error_network_unavailable), Toast.LENGTH_LONG).show();
-        }
+        binding = DataBindingUtil.setContentView(this,
+                R.layout.activity_main);
+        setupAttributionLink();
+        requestData();
     }
 
-    private void enableAttributionLink() {
+    private void setupAttributionLink() {
         TextView attributionLabel = findViewById(R.id.attributionLabel);
         attributionLabel.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    private void fireRequest() {
+    private void requestData() {
+        if (!isNetworkAvailable()) {
+            Toast.makeText(this, getString(R.string.error_network_unavailable), Toast.LENGTH_LONG).show();
+            return;
+        }
+
         String apiKey = BuildConfig.DarkSkyApiKey;
         double latitude = 40.795335;
         double longitude = -73.972640;
@@ -77,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.v(TAG, responseBody);
                 if (response.isSuccessful()) {
                     try {
-                        getCurrentDetails(responseBody);
+                        binding.setWeather(getCurrentWeather(responseBody));
                     } catch (JSONException e) {
                         Log.e(TAG, "JSON Exception Caught: ", e);
                     }
@@ -88,19 +94,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private CurrentWeather getCurrentDetails(String jsonData) throws JSONException {
+    private CurrentWeather getCurrentWeather(String jsonData) throws JSONException {
         JSONObject forecast = new JSONObject(jsonData);
         JSONObject currently = forecast.getJSONObject("currently");
-        CurrentWeather currentWeather = new CurrentWeather();
-        currentWeather.setTimezone(forecast.getString("timezone"));
-        currentWeather.setHumidity(currently.getDouble("humidity"));
-        currentWeather.setTime(currently.getLong("time"));
-        currentWeather.setIcon(currently.getString("icon"));
-        currentWeather.setLocationLabel("New York, NY");
-        currentWeather.setPrecipChance(currently.getDouble("precipProbability"));
-        currentWeather.setSummary(currently.getString("summary"));
-        currentWeather.setTemperature(currently.getDouble("temperature"));
-        return currentWeather;
+        return new CurrentWeather("New York, NY",
+                currently.getString("icon"),
+                currently.getLong("time"),
+                currently.getDouble("temperature"),
+                currently.getDouble("humidity"),
+                currently.getDouble("precipProbability"),
+                currently.getString("summary"),
+                forecast.getString("timezone"));
     }
 
     private boolean isNetworkAvailable() {
@@ -118,5 +122,14 @@ public class MainActivity extends AppCompatActivity {
     private void alertUserAboutError() {
         AlertDialogFragment dialog = new AlertDialogFragment();
         dialog.show(getSupportFragmentManager(), "error_dialog");
+    }
+
+    public void refreshOnClick(View view) {
+        requestData();
+    }
+
+    @BindingAdapter({"android:src"})
+    public static void setImageViewResource(ImageView imageView, int resource) {
+        imageView.setImageResource(resource);
     }
 }

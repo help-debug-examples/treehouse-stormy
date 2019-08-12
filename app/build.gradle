@@ -20,6 +20,9 @@ android {
             it.buildConfigField 'String', 'DarkSkyApiKey', DARK_SKY_API_KEY
         }
     }
+    dataBinding {
+        enabled = true
+    }
 }
 
 dependencies {

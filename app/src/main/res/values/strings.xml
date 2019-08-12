@@ -9,4 +9,5 @@
     <string name="current_conditions_icon">Current Conditions Icon</string>
     <string name="degree_symbol">Degree Symbol</string>
     <string name="attribution_label"><a href="https://darksky.net">Powered by Dark Spy</a></string>
+    <string name="refresh_button">Refresh button</string>
 </resources>

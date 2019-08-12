@@ -15,6 +15,17 @@ public class CurrentWeather {
     private String summary;
     private String timezone;
 
+    CurrentWeather(String locationLabel, String icon, long time, double temperature, double humidity, double precipChance, String summary, String timezone) {
+        this.locationLabel = locationLabel;
+        this.icon = icon;
+        this.time = time;
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.precipChance = precipChance;
+        this.summary = summary;
+        this.timezone = timezone;
+    }
+
     public String getLocationLabel() {
         return locationLabel;
     }
@@ -36,6 +47,7 @@ public class CurrentWeather {
         switch (icon) {
             case "clear-night":
                 iconId = R.drawable.clear_night;
+                break;
             case "rain":
                 iconId = R.drawable.rain;
                 break;
