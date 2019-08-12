@@ -4,4 +4,9 @@
     <string name="error_message">There was an error. Please try again.</string>
     <string name="error_button_ok">OK</string>
     <string name="error_network_unavailable">Sorry, network is unavailable.</string>
+    <string name="precip_label">RAIN/SNOW?</string>
+    <string name="humidity_label">HUMIDITY</string>
+    <string name="current_conditions_icon">Current Conditions Icon</string>
+    <string name="degree_symbol">Degree Symbol</string>
+    <string name="attribution_label"><a href="https://darksky.net">Powered by Dark Spy</a></string>
 </resources>

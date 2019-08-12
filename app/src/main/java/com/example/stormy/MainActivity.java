@@ -1,12 +1,17 @@
 package com.example.stormy;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
@@ -14,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -30,12 +36,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        enableAttributionLink();
 
         if (isNetworkAvailable()) {
             fireRequest();
         } else {
             Toast.makeText(this, getString(R.string.error_network_unavailable), Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void enableAttributionLink() {
+        TextView attributionLabel = findViewById(R.id.attributionLabel);
+        attributionLabel.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private void fireRequest() {
@@ -58,9 +70,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "IO Exception Caught: ", e);
             }
 
+            @TargetApi(Build.VERSION_CODES.KITKAT)
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                String responseBody = response.body().string();
+                String responseBody = Objects.requireNonNull(response.body()).string();
                 Log.v(TAG, responseBody);
                 if (response.isSuccessful()) {
                     try {
