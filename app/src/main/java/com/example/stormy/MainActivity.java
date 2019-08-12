@@ -10,6 +10,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -22,6 +24,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
+    private CurrentWeather currentWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,12 +60,34 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                Log.v(TAG, response.body().string());
-                if (!response.isSuccessful()) {
+                String responseBody = response.body().string();
+                Log.v(TAG, responseBody);
+                if (response.isSuccessful()) {
+                    try {
+                        getCurrentDetails(responseBody);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON Exception Caught: ", e);
+                    }
+                } else {
                     alertUserAboutError();
                 }
             }
         });
+    }
+
+    private CurrentWeather getCurrentDetails(String jsonData) throws JSONException {
+        JSONObject forecast = new JSONObject(jsonData);
+        JSONObject currently = forecast.getJSONObject("currently");
+        CurrentWeather currentWeather = new CurrentWeather();
+        currentWeather.setTimezone(forecast.getString("timezone"));
+        currentWeather.setHumidity(currently.getDouble("humidity"));
+        currentWeather.setTime(currently.getLong("time"));
+        currentWeather.setIcon(currently.getString("icon"));
+        currentWeather.setLocationLabel("New York, NY");
+        currentWeather.setPrecipChance(currently.getDouble("precipProbability"));
+        currentWeather.setSummary(currently.getString("summary"));
+        currentWeather.setTemperature(currently.getDouble("temperature"));
+        return currentWeather;
     }
 
     private boolean isNetworkAvailable() {
